@@ -46,13 +46,13 @@
                         </Pane>
                         <HBox alignment="BASELINE_LEFT" prefHeight="42.0" prefWidth="823.0" spacing="5.0">
                             <children>
-                                <Button mnemonicParsing="false" onAction="#insertClick" text="Insertar" />
-                                <Button mnemonicParsing="false" onAction="#removeClick" text="Eliminar" />
-                                <Button mnemonicParsing="false" onAction="#editClick" text="Editar" />
-                        <Pane prefHeight="50.0" prefWidth="630.0">
+                                <Button mnemonicParsing="false" onAction="#insertClick" prefHeight="30.0" prefWidth="82.0" text="Insertar" />
+                                <Button fx:id="removeButton" mnemonicParsing="false" onAction="#removeClick" prefHeight="30.0" prefWidth="82.0" text="Eliminar" />
+                                <Button fx:id="editButton" mnemonicParsing="false" onAction="#editClick" prefHeight="30.0" prefWidth="78.0" text="Editar" />
+                        <Button fx:id="addNumberButton" mnemonicParsing="false" onAction="#addOtherPhoneNumber" prefHeight="30.0" prefWidth="153.0" text="Agregar otro número" visible="true" />
+                        <Pane prefHeight="22.0" prefWidth="480.0">
                            <children>
-                              <Button fx:id="addNumber" disable="true" layoutX="454.0" layoutY="-16.0" mnemonicParsing="false" onAction="#addOtherPhoneNumber" prefHeight="30.0" prefWidth="146.0" text="Agregar otro número" visible="true" />
-                              <Button fx:id="saveButton" disable="true" layoutX="384.0" layoutY="-16.0" mnemonicParsing="false" onAction="#saveClick" prefHeight="30.0" prefWidth="62.0" text="Guardar" visible="true" />
+                              <Button fx:id="saveButton" disable="true" layoutX="362.0" layoutY="-15.0" mnemonicParsing="false" onAction="#saveClick" prefHeight="30.0" prefWidth="62.0" text="Guardar" visible="true" />
                            </children>
                         </Pane>
                             </children>
