@@ -1,21 +1,14 @@
 package com.example.agenda;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import java.io.IOException;
-import java.sql.SQLOutput;
 
 public class SceneController {
     @FXML
@@ -33,9 +26,11 @@ public class SceneController {
     @FXML
     private TextField txtAddress;
     @FXML
-    private Button addNumber;
+    private Button addNumberButton;
     @FXML
-    private Button okButton;
+    private Button removeButton;
+    @FXML
+    private Button editButton;
     @FXML
     private Button saveButton;
     @FXML
@@ -48,7 +43,7 @@ public class SceneController {
     public SceneController() {
         people = FXCollections.observableArrayList();
         agenda = new AgendaDB();
-        insertSelected = true;
+        insertSelected = false;
         extraPhoneNumber = false;
     }
 
@@ -59,6 +54,7 @@ public class SceneController {
         colPhoneNumbers.setCellValueFactory(new PropertyValueFactory<>("phoneNumbers"));
         people.addAll(agenda.getPeople());
         tableView.setItems(people);
+        setElementsVisible(false);
     }
 
     @FXML
@@ -66,23 +62,6 @@ public class SceneController {
         setElementsVisible(true);
         insertSelected = true;
     }
-
-    @FXML
-    protected void okClick(ActionEvent event) throws IOException {
-        String name = txtName.getText();
-        String address = txtAddress.getText();
-        String phone = txtPhoneNumber.getText();
-        agenda.insertPerson(name, address, phone);
-        people.setAll(agenda.getPeople());
-
-        Parent root = FXMLLoader.load(getClass().getResource("Scene2.fxml"));
-        Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
-        okButton.setVisible(false);
-    }
-
 
     @FXML
     protected void removeClick(ActionEvent event) throws IOException {
@@ -93,11 +72,11 @@ public class SceneController {
             agenda.deletePerson(selectedPerson.getId());
         }
 
-        Parent root = FXMLLoader.load(getClass().getResource("Scene2.fxml"));
-        Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
+        people.clear();
+        agenda.getData();
+        people.addAll(agenda.getPeople());
+        tableView.setItems(people);
+        setElementsVisible(false);
     }
 
     @FXML
@@ -114,55 +93,72 @@ public class SceneController {
 
     @FXML
     protected void addOtherPhoneNumber(ActionEvent event) throws IOException {
-        txtPhoneNumber.clear();
+        Person selectedPerson = tableView.getSelectionModel().getSelectedItem();
+        if (selectedPerson != null) {
+            txtName.setText(selectedPerson.getName());
+            txtAddress.setText(selectedPerson.getAddress());
+        }
+        txtPhoneNumber.setDisable(false);
         extraPhoneNumber = true;
+        saveButton.setDisable(false);
     }
 
     @FXML
     protected void saveClick(ActionEvent event) throws IOException {
         Person selectedPerson = tableView.getSelectionModel().getSelectedItem();
+        System.out.println("INSERT: " + insertSelected + " EXTRA: " + extraPhoneNumber);
         if (insertSelected && !extraPhoneNumber) {
             String name = txtName.getText();
             String address = txtAddress.getText();
             String phone = txtPhoneNumber.getText();
             agenda.insertPerson(name, address, phone);
-            people.setAll(agenda.getPeople());
-
-            Parent root = FXMLLoader.load(getClass().getResource("Scene2.fxml"));
-            Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
+            people.clear();
+            agenda.getData();
+            people.addAll(agenda.getPeople());
+            tableView.setItems(people);
         } else if (!insertSelected && !extraPhoneNumber) {
             if (selectedPerson != null) {
                 selectedPerson.setName(txtName.getText());
                 selectedPerson.setAddress(txtAddress.getText());
                 selectedPerson.setPhoneNumbers(txtPhoneNumber.getText());
-                agenda.updatePerson(selectedPerson.getId(), selectedPerson.getName(), selectedPerson.getName());
+                agenda.updatePerson(selectedPerson.getId(), selectedPerson.getName(), selectedPerson.getAddress(), selectedPerson.getPhoneNumbers());
                 people.clear();
                 people.addAll(agenda.getPeople());
                 tableView.setItems(people);
             }
         } else if (!insertSelected && extraPhoneNumber) {
             agenda.addPhone(selectedPerson.getId(), txtPhoneNumber.getText());
-
-            Parent root = FXMLLoader.load(getClass().getResource("Scene2.fxml"));
-            Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
+            people.clear();
+            agenda.getData();
+            people.addAll(agenda.getPeople());
+            tableView.setItems(people);
         }
         insertSelected = false;
+        extraPhoneNumber = false;
         setElementsVisible(false);
+        clearTextFields();
     }
 
     private void setElementsVisible(boolean status) {
+        if (agenda.getPeople().isEmpty()) {
+            removeButton.setDisable(true);
+            editButton.setDisable(true);
+            addNumberButton.setDisable(true);
+        } else {
+            removeButton.setDisable(false);
+            editButton.setDisable(false);
+            addNumberButton.setDisable(false);
+        }
+
         txtName.setDisable(!status);
         txtAddress.setDisable(!status);
         txtPhoneNumber.setDisable(!status);
         saveButton.setDisable(!status);
-        addNumber.setDisable(!status);
     }
 
-
+    private void clearTextFields() {
+        txtName.clear();
+        txtAddress.clear();
+        txtPhoneNumber.clear();
+    }
 }

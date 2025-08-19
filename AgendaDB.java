@@ -1,12 +1,12 @@
 package com.example.agenda;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.sql.*;
 
+/**
+ * Clase que gestiona las altas, bajas y modificaciones de una agenda.
+ */
 public class AgendaDB {
-    // Datos de conexión a la base de datos
     private static final String URL = "jdbc:mariadb://localhost:3307/agenda";
     private static final String USER = "usuario1";
     private static final String PASSWORD = "superpassword";
@@ -17,25 +17,18 @@ public class AgendaDB {
         System.out.println(people);
     }
 
-    public static void main(String[] args) {
-        AgendaDB a = new AgendaDB();
-    }
-
-    private void getData() {
+    /**
+     * Método que obtiene toda la información de la base de datos y la almacena en una lista.
+     */
+    public void getData() {
         Connection conn = null;
         Statement stmt = null;
         ResultSet rs = null;
         people = FXCollections.observableArrayList();
 
         try {
-            // 1. Registrar el driver JDBC
             Class.forName("org.mariadb.jdbc.Driver");
-
-            // 2. Establecer la conexión
             conn = DriverManager.getConnection(URL, USER, PASSWORD);
-
-            // 3. Consultar la tabla Personas
-            System.out.println("\n=== LISTADO DE PERSONAS ===");
             stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT * FROM Personas");
 
@@ -43,15 +36,13 @@ public class AgendaDB {
                 int id = rs.getInt("id");
                 String name = rs.getString("nombre");
                 String address = rs.getString("direccion");
-
-                // 4. Consultar los teléfonos de cada persona
                 Statement stmtTelefonos = conn.createStatement();
                 ResultSet rsTelefonos = stmtTelefonos.executeQuery(
                         "SELECT telefono FROM Telefonos WHERE personaId = " + id);
 
                 StringBuilder phoneNumbers = new StringBuilder();
                 while (rsTelefonos.next()) {
-                    if (phoneNumbers.length() > 0) phoneNumbers.append(", "); // separa con coma
+                    if (phoneNumbers.length() > 0) phoneNumbers.append(", ");
                     phoneNumbers.append(rsTelefonos.getString("telefono"));
                 }
 
@@ -66,7 +57,6 @@ public class AgendaDB {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // 5. Cerrar recursos
             try {
                 if (rs != null) rs.close();
                 if (stmt != null) stmt.close();
@@ -81,6 +71,12 @@ public class AgendaDB {
         return people;
     }
 
+    /**
+     * Método que inserta una persona en la base de datos.
+     * @param name El nombre ha registrar.
+     * @param address La dirección de la persona a registrar.
+     * @param phone El número de teléfono de la persona a registrar.
+     */
     public void insertPerson(String name, String address, String phone) {
         String person = "INSERT INTO Personas (nombre, direccion) VALUES (?, ?)";
         String phoneNumber = "INSERT INTO Telefonos (personaId, telefono) VALUES (?, ?)";
@@ -124,6 +120,10 @@ public class AgendaDB {
         }
     }
 
+    /**
+     * Método que elimina a una persona de la base de datos de acuerdo a su id.
+     * @param id El número de identificación de la persona a eliminar.
+     */
     public void deletePerson(int id) {
         String phone = "DELETE FROM Telefonos WHERE personaId = ?";
         String person = "DELETE FROM Personas WHERE id = ?";
@@ -142,19 +142,37 @@ public class AgendaDB {
         }
     }
 
-    public void updatePerson(int id, String name, String address) {
-        String sql = "UPDATE Personas SET nombre = ?, direccion = ? WHERE id = ?";
+    /**
+     * Método que actualiza la información de la persona seleccionada.
+     * @param id El nuevo id a registrar.
+     * @param name El nuevo nombre a registrar.
+     * @param address La nueva dirección a registrar.
+     * @param phone El nuevo teléfono a registrar.
+     */
+    public void updatePerson(int id, String name, String address, String phone) {
+        String sqlPerson = "UPDATE Personas SET nombre = ?, direccion = ? WHERE id = ?";
+        String sqlPhone  = "UPDATE Telefonos SET telefono = ? WHERE personaId = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, name);
-            stmt.setString(2, address);
-            stmt.setInt(3, id);
-            stmt.executeUpdate();
+             PreparedStatement stmtPerson = conn.prepareStatement(sqlPerson);
+             PreparedStatement stmtPhone = conn.prepareStatement(sqlPhone)) {
+            stmtPerson.setString(1, name);
+            stmtPerson.setString(2, address);
+            stmtPerson.setInt(3, id);
+            stmtPerson.executeUpdate();
+
+            stmtPhone.setString(1, phone);
+            stmtPhone.setInt(2, id);
+            stmtPhone.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Método que agrega un nuevo teléfono de una persona.
+     * @param personId El id de la persona.
+     * @param phone El número de teléfono a registrar.
+     */
     public void addPhone(int personId, String phone) {
         String sql = "INSERT INTO Telefonos(personaId, telefono) VALUES (?, ?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
