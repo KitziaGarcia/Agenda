@@ -53,6 +53,7 @@
                         <Pane prefHeight="22.0" prefWidth="480.0">
                            <children>
                               <Button fx:id="saveButton" disable="true" layoutX="362.0" layoutY="-15.0" mnemonicParsing="false" onAction="#saveClick" prefHeight="30.0" prefWidth="62.0" text="Guardar" visible="true" />
+                              <Button fx:id="addAddressButton" layoutY="-15.0" mnemonicParsing="false" onAction="#addOtherAddress" prefHeight="30.0" prefWidth="146.0" text="Agregar otra dirección" visible="true" />
                            </children>
                         </Pane>
                             </children>

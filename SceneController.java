@@ -9,6 +9,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.event.ActionEvent;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class SceneController {
     @FXML
@@ -28,6 +29,8 @@ public class SceneController {
     @FXML
     private Button addNumberButton;
     @FXML
+    private Button addAddressButton;
+    @FXML
     private Button removeButton;
     @FXML
     private Button editButton;
@@ -39,12 +42,14 @@ public class SceneController {
     private AgendaDB agenda;
     private boolean insertSelected;
     private boolean extraPhoneNumber;
+    private boolean extraAddress;
 
     public SceneController() {
         people = FXCollections.observableArrayList();
         agenda = new AgendaDB();
         insertSelected = false;
         extraPhoneNumber = false;
+        extraAddress = false;
     }
 
     public void initialize() {
@@ -54,7 +59,6 @@ public class SceneController {
         colPhoneNumbers.setCellValueFactory(new PropertyValueFactory<>("phoneNumbers"));
         people.addAll(agenda.getPeople());
         tableView.setItems(people);
-        setElementsVisible(false);
     }
 
     @FXML
@@ -104,19 +108,29 @@ public class SceneController {
     }
 
     @FXML
-    protected void saveClick(ActionEvent event) throws IOException {
+    protected void addOtherAddress(ActionEvent event) throws IOException {
+        Person selectedPerson = tableView.getSelectionModel().getSelectedItem();
+
+        if (selectedPerson != null) {
+            txtName.setText(selectedPerson.getName());
+            txtPhoneNumber.setText(selectedPerson.getPhoneNumbers().toString());
+        }
+        txtAddress.setDisable(false);
+        extraAddress = true;
+        saveButton.setDisable(false);
+    }
+
+    @FXML
+    protected void saveClick(ActionEvent event) throws IOException, SQLException {
         Person selectedPerson = tableView.getSelectionModel().getSelectedItem();
         System.out.println("INSERT: " + insertSelected + " EXTRA: " + extraPhoneNumber);
-        if (insertSelected && !extraPhoneNumber) {
+        if (insertSelected && !extraPhoneNumber && !extraAddress) {
             String name = txtName.getText();
             String address = txtAddress.getText();
             String phone = txtPhoneNumber.getText();
             agenda.insertPerson(name, address, phone);
-            people.clear();
-            agenda.getData();
-            people.addAll(agenda.getPeople());
-            tableView.setItems(people);
-        } else if (!insertSelected && !extraPhoneNumber) {
+            updateTableView();
+        } else if (!insertSelected && !extraPhoneNumber && !extraAddress) {
             if (selectedPerson != null) {
                 selectedPerson.setName(txtName.getText());
                 selectedPerson.setAddress(txtAddress.getText());
@@ -126,15 +140,16 @@ public class SceneController {
                 people.addAll(agenda.getPeople());
                 tableView.setItems(people);
             }
-        } else if (!insertSelected && extraPhoneNumber) {
+        } else if (!insertSelected && extraPhoneNumber && !extraAddress) {
             agenda.addPhone(selectedPerson.getId(), txtPhoneNumber.getText());
-            people.clear();
-            agenda.getData();
-            people.addAll(agenda.getPeople());
-            tableView.setItems(people);
+            updateTableView();
+        } else if (!insertSelected && !extraPhoneNumber && extraAddress) {
+            agenda.addAddress(selectedPerson.getId(), txtAddress.getText());
+            updateTableView();
         }
         insertSelected = false;
         extraPhoneNumber = false;
+        extraAddress = false;
         setElementsVisible(false);
         clearTextFields();
     }
@@ -144,16 +159,25 @@ public class SceneController {
             removeButton.setDisable(true);
             editButton.setDisable(true);
             addNumberButton.setDisable(true);
+            addAddressButton.setDisable(true);
         } else {
             removeButton.setDisable(false);
             editButton.setDisable(false);
             addNumberButton.setDisable(false);
+            addAddressButton.setDisable(false);
         }
 
         txtName.setDisable(!status);
         txtAddress.setDisable(!status);
         txtPhoneNumber.setDisable(!status);
         saveButton.setDisable(!status);
+    }
+
+    private void updateTableView() {
+        people.clear();
+        agenda.getData();
+        people.addAll(agenda.getPeople());
+        tableView.setItems(people);
     }
 
     private void clearTextFields() {
