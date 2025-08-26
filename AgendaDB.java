@@ -2,6 +2,9 @@ package com.example.agenda;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Clase que gestiona las altas, bajas y modificaciones de una agenda.
@@ -14,7 +17,6 @@ public class AgendaDB {
 
     public AgendaDB() {
         getData();
-        System.out.println("PEOPLE: \n" + people);
     }
 
     /**
@@ -77,10 +79,6 @@ public class AgendaDB {
                 se.printStackTrace();
             }
         }
-    }
-
-    public ObservableList<Person> getPeople() {
-        return people;
     }
 
     /**
@@ -195,12 +193,13 @@ public class AgendaDB {
 
     /**
      * Método que actualiza la información de la persona seleccionada.
-     * @param id El nuevo id a registrar.
-     * @param name El nuevo nombre a registrar.
-     * @param address La nueva dirección a registrar.
-     * @param phone El nuevo teléfono a registrar.
+     * @param id El id de la persona seleccionada.
+     * @param name El nombre de la persona seleccionada.
+     * @param addresses Las direcciones de la persona.
+     * @param phones Los números de la persona.
      */
-    public void updatePerson(int id, String name, String address, String phone) {
+    public void updatePerson(int id, String name, List<String> addresses, List<String> phones) {
+
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
             String sqlPerson = "UPDATE Personas SET nombre = ? WHERE id = ?";
             try (PreparedStatement stmtPerson = conn.prepareStatement(sqlPerson)) {
@@ -209,53 +208,58 @@ public class AgendaDB {
                 stmtPerson.executeUpdate();
             }
 
-            String sqlPhone  = "UPDATE Telefonos SET telefono = ? WHERE personaId = ?";
-            try (PreparedStatement stmtPhone = conn.prepareStatement(sqlPhone)) {
-                stmtPhone.setString(1, phone);
-                stmtPhone.setInt(2, id);
-                stmtPhone.executeUpdate();
-            }
-
-            int addressId = -1;
-            String findAddress = "SELECT id_direccion FROM Direcciones WHERE direccion = ?";
-            try (PreparedStatement stmtAddress = conn.prepareStatement(findAddress)) {
-                stmtAddress.setString(1, address);
-                ResultSet rs = stmtAddress.executeQuery();
-
-                if (rs.next()) {
-                    addressId = rs.getInt("id_direccion");
-                } else {
-                    String insertAddress = "INSERT INTO Direcciones (direccion) VALUES (?)";
-                    try (PreparedStatement stmtInsert = conn.prepareStatement(insertAddress, Statement.RETURN_GENERATED_KEYS)) {
-                        stmtInsert.setString(1, address);
-                        stmtInsert.executeUpdate();
-                        ResultSet keys = stmtInsert.getGeneratedKeys();
-                        if (keys.next()) {
-                            addressId = keys.getInt(1);
-                        }
-                        keys.close();
-                    }
-                }
-                rs.close();
-            }
-
             String deletePersonAddresses = "DELETE FROM Personas_Direcciones WHERE id_persona = ?";
-            try (PreparedStatement stmtDelete = conn.prepareStatement(deletePersonAddresses)) {
-                stmtDelete.setInt(1, id);
-                stmtDelete.executeUpdate();
+            try (PreparedStatement stmtDel = conn.prepareStatement(deletePersonAddresses)) {
+                stmtDel.setInt(1, id);
+                stmtDel.executeUpdate();
             }
 
-            String updatePersonAddresses = "INSERT INTO Personas_Direcciones (id_persona, id_direccion) VALUES (?, ?)";
-            try (PreparedStatement stmtUpdate = conn.prepareStatement(updatePersonAddresses)) {
-                stmtUpdate.setInt(1, id);
-                stmtUpdate.setInt(2, addressId);
-                stmtUpdate.executeUpdate();
+            for (String address : addresses) {
+                int addressId = -1;
+                String findAddress = "SELECT id_direccion FROM Direcciones WHERE direccion = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(findAddress)) {
+                    stmt.setString(1, address);
+                    ResultSet rs = stmt.executeQuery();
+                    if (rs.next()) {
+                        addressId = rs.getInt("id_direccion");
+                    } else {
+                        String insertAddress = "INSERT INTO Direcciones (direccion) VALUES (?)";
+                        try (PreparedStatement stmtInsert = conn.prepareStatement(insertAddress, Statement.RETURN_GENERATED_KEYS)) {
+                            stmtInsert.setString(1, address);
+                            stmtInsert.executeUpdate();
+                            ResultSet keys = stmtInsert.getGeneratedKeys();
+                            if (keys.next()) {
+                                addressId = keys.getInt(1);
+                            }
+                            keys.close();
+                        }
+                    }
+                    rs.close();
+                }
+
+                String insertRelation = "INSERT INTO Personas_Direcciones (id_persona, id_direccion) VALUES (?, ?)";
+                try (PreparedStatement stmtRel = conn.prepareStatement(insertRelation)) {
+                    stmtRel.setInt(1, id);
+                    stmtRel.setInt(2, addressId);
+                    stmtRel.executeUpdate();
+                }
             }
 
-            String deleteUnusedAddresses = "DELETE FROM Direcciones WHERE id_direccion NOT IN (SELECT id_direccion FROM Personas_Direcciones)";
-            try (PreparedStatement psDeleteUnused = conn.prepareStatement(deleteUnusedAddresses)) {
-                psDeleteUnused.executeUpdate();
+            String deletePhones = "DELETE FROM Telefonos WHERE personaId = ?";
+            try (PreparedStatement stmtDel = conn.prepareStatement(deletePhones)) {
+                stmtDel.setInt(1, id);
+                stmtDel.executeUpdate();
             }
+
+            for (String phone : phones) {
+                String insertPhone = "INSERT INTO Telefonos (personaId, telefono) VALUES (?, ?)";
+                try (PreparedStatement stmtPhone = conn.prepareStatement(insertPhone)) {
+                    stmtPhone.setInt(1, id);
+                    stmtPhone.setString(2, phone);
+                    stmtPhone.executeUpdate();
+                }
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -303,5 +307,59 @@ public class AgendaDB {
         }
     }
 
+    public ObservableList<Person> getPeople() {
+        return people;
+    }
 
+    /**
+     * Método que regresa las direcciones de la persona de acuerdo a su id.
+     * @param personId El id de la persona.
+     * @return Una lista con todas las direcciones.
+     */
+    public List<String> getAddressesByPerson(int personId) {
+        List<String> addresses = new ArrayList<>();
+        String sql = "SELECT d.direccion FROM Direcciones d JOIN Personas_Direcciones pd ON d.id_direccion = pd.id_direccion WHERE pd.id_persona = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, personId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                addresses.add(rs.getString("direccion"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return addresses;
+    }
+
+    /**
+     * Método que regresa los números de la persona de acuerdo a su id.
+     * @param personId El id de la persona.
+     * @return Una lista con todos los números.
+     */
+    public List<String> getPhonesByPerson(int personId) {
+        List<String> phones = new ArrayList<>();
+        String sql = "SELECT telefono FROM telefonos WHERE personaId = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, personId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                phones.add(rs.getString("telefono"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return phones;
+    }
 }
