@@ -9,22 +9,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.event.ActionEvent;
-import javafx.scene.control.cell.TextFieldListCell;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class SceneController {
     @FXML
     private TableView<Person> tableView;
-    @FXML
-    private ListView<String> listViewAddresses;
-    @FXML
-    private ListView<String> listViewPhones;
     @FXML
     private TableColumn<Person, Integer> colId;
     @FXML
@@ -62,13 +54,12 @@ public class SceneController {
         insertSelected = false;
         extraPhoneNumber = false;
         extraAddress = false;
-        scene2Showing = false;
     }
 
     public void initialize() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        colAddress.setCellValueFactory(new PropertyValueFactory<>("address"));
+        colAddress.setCellValueFactory(new PropertyValueFactory<>("addresses"));
         colPhoneNumbers.setCellValueFactory(new PropertyValueFactory<>("phoneNumbers"));
         people.addAll(agenda.getPeople());
         tableView.setItems(people);
@@ -90,34 +81,32 @@ public class SceneController {
         confirmDelete(selectedPerson);
     }
 
-    @FXML
-    protected void editClick(ActionEvent event) throws IOException {
-        setElementsVisible(true);
-        insertSelected = false;
-        Person selectedPerson = tableView.getSelectionModel().getSelectedItem();
-        saveButton.setDisable(false);
-        if (selectedPerson != null) {
-            scene2Showing = true;
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Scene2.fxml"));
-            Parent root = loader.load();
-            SceneController controller = loader.getController();
-            Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-
-            txtName = controller.txtName;
-            txtName.setDisable(false);
-            txtName.setText(selectedPerson.getName());
-            controller.loadPersonInfo(selectedPerson);
-            listViewAddresses = controller.listViewAddresses;
-            listViewPhones = controller.listViewPhones;
-
-            listViewAddresses.setEditable(true);
-            listViewAddresses.setCellFactory(TextFieldListCell.forListView());
-            editPerson(selectedPerson);
-        }
-    }
+//    @FXML
+//    protected void editClick(ActionEvent event) throws IOException {
+//        setElementsVisible(true);
+//        Person selectedPerson = tableView.getSelectionModel().getSelectedItem();
+//        if (selectedPerson != null) {
+//            FXMLLoader loader = new FXMLLoader(AgendaApp.class.getResource("Scene2.fxml"));
+//            Parent root = loader.load();
+//
+//            SceneController2 controller2 = loader.getController();
+//            controller2.setPerson(selectedPerson);
+//
+//            String addresses = selectedPerson.getPhoneNumbers();
+//            List<String> addressesList = Arrays.asList(addresses.split("\n"));
+//            controller2.setAddresses(addressesList);
+//
+//            String phones = selectedPerson.getPhoneNumbers();
+//            List<String> phoneList = Arrays.asList(phones.split("\n"));
+//            controller2.setPhones(phoneList);
+//            controller2.loadPersonInfo(selectedPerson);
+//            controller2.editPerson(selectedPerson);
+//
+//            Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+//            stage.setScene(new Scene(root));
+//            stage.show();
+//        }
+//    }
 
     @FXML
     protected void addOtherPhoneNumber(ActionEvent event) throws IOException {
@@ -168,12 +157,12 @@ public class SceneController {
             stage.show();
             controller.updateTableView();
         } else if (!insertSelected && extraPhoneNumber && !extraAddress) {
-            agenda.addPhone(selectedPerson.getId(), txtPhoneNumber.getText());
+            //agenda.addPhone(selectedPerson.getId(), txtPhoneNumber.getText());
             updateTableView();
             setElementsVisible(true);
             clearTextFields();
         } else if (!insertSelected && !extraPhoneNumber && extraAddress) {
-            agenda.addAddress(selectedPerson.getId(), txtAddress.getText());
+            //agenda.addAddress(selectedPerson.getId(), txtAddress.getText());
             updateTableView();
             setElementsVisible(true);
             clearTextFields();
@@ -215,41 +204,6 @@ public class SceneController {
         txtPhoneNumber.clear();
     }
 
-    public void loadPersonInfo(Person selectedPerson) {
-        txtName.setText(selectedPerson.getName());
-
-        listViewAddresses.getItems().clear();
-        listViewPhones.getItems().clear();
-
-        List<String> addresses = agenda.getAddressesByPerson(selectedPerson.getId());
-        listViewAddresses.getItems().addAll(addresses);
-
-        List<String> phones = agenda.getPhonesByPerson(selectedPerson.getId());
-        listViewPhones.getItems().addAll(phones);
-    }
-
-    public void editPerson(Person selectedPerson) {
-        listViewAddresses.setEditable(true);
-        listViewAddresses.setCellFactory(TextFieldListCell.forListView());
-
-        listViewAddresses.setOnEditCommit(event -> {
-            int index = event.getIndex();
-            String newValue = event.getNewValue();
-            listViewAddresses.getItems().set(index, newValue);
-            agenda.updatePerson(selectedPerson.getId(), txtName.getText(), new ArrayList<>(listViewAddresses.getItems()), new ArrayList<>(listViewPhones.getItems()));
-        });
-
-        listViewPhones.setEditable(true);
-        listViewPhones.setCellFactory(TextFieldListCell.forListView());
-
-        listViewPhones.setOnEditCommit(event -> {
-            int index = event.getIndex();
-            String newValue = event.getNewValue();
-            listViewPhones.getItems().set(index, newValue);
-            agenda.updatePerson(selectedPerson.getId(), txtName.getText(), new ArrayList<>(listViewAddresses.getItems()), new ArrayList<>(listViewPhones.getItems()));
-        });
-    }
-
     public void confirmDelete(Person person) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmar eliminación");
@@ -258,10 +212,9 @@ public class SceneController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            agenda.deletePerson(person.getId());
+            //agenda.deletePerson(person.getId());
             updateTableView();
             setElementsVisible(false);
         }
     }
-
 }

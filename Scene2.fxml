@@ -13,7 +13,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="476.0" prefWidth="825.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.agenda.SceneController">
+<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="476.0" prefWidth="825.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.agenda.SceneController2">
     <content>
         <BorderPane prefHeight="474.0" prefWidth="823.0">
             <center>
@@ -39,8 +39,8 @@
                                 <HBox alignment="CENTER" layoutX="175.0" layoutY="9.0" prefHeight="55.0" prefWidth="641.0" spacing="30.0">
                                     <children>
                                         <TextField fx:id="txtName" disable="true" promptText="Nombre" visible="true" />
-                              <ListView fx:id="listViewAddresses" prefHeight="200.0" prefWidth="200.0" />
-                              <ListView fx:id="listViewPhones" prefHeight="200.0" prefWidth="200.0" />
+                                        <ListView fx:id="listViewAddresses" prefHeight="200.0" prefWidth="200.0" />
+                                        <ListView fx:id="listViewPhones" prefHeight="200.0" prefWidth="200.0" />
                                     </children>
                                 </HBox>
                             </children>
@@ -48,9 +48,9 @@
                         <HBox alignment="BOTTOM_RIGHT" prefHeight="42.0" prefWidth="823.0" spacing="5.0">
                             <children>
                                 <Pane prefHeight="38.0" prefWidth="403.0">
-                           <children>
+                                    <children>
                                         <Button fx:id="saveButton" disable="false" layoutX="326.0" mnemonicParsing="false" onAction="#saveClick" prefHeight="30.0" prefWidth="62.0" text="Guardar" visible="true" />
-                           </children></Pane>
+                                    </children></Pane>
                             </children>
                         </HBox>
                     </children>

@@ -1,17 +1,15 @@
 package com.example.agenda;
 
-import java.util.ArrayList;
-
 public class Person {
     private int id;
     private String name;
-    private String address;
+    private String addresses;
     private String phoneNumbers;
 
-    public Person(int id, String name, String address, String phoneNumbers) {
+    public Person(int id, String name, String addresses, String phoneNumbers) {
         this.id = id;
         this.name = name;
-        this.address = address;
+        this.addresses = addresses;
         this.phoneNumbers = phoneNumbers;
     }
 
@@ -19,12 +17,16 @@ public class Person {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
 
-    public String getAddress() {
-        return address;
+    public String getAddresses() {
+        return addresses;
     }
 
     public String getPhoneNumbers() {
@@ -35,8 +37,8 @@ public class Person {
         this.name = name;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAddresses(String addresses) {
+        this.addresses = addresses;
     }
 
     public void setPhoneNumbers(String phoneNumbers) {

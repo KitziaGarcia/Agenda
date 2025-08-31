@@ -35,27 +35,27 @@
                                         <Font size="29.0" />
                                     </font>
                                 </Text>
-                        <HBox alignment="BOTTOM_CENTER" layoutX="212.0" layoutY="2.0" prefHeight="55.0" prefWidth="614.0" spacing="30.0">
-                           <children>
-                               <TextField fx:id="txtName" disable="true" promptText="Nombre" visible="true" />
-                               <TextField fx:id="txtAddress" disable="true" promptText="Dirección" visible="true" />
-                              <TextField fx:id="txtPhoneNumber" disable="true" promptText="Teléfono" visible="true" />
-                           </children>
-                        </HBox>
+                                <HBox alignment="BOTTOM_CENTER" layoutX="212.0" layoutY="2.0" prefHeight="55.0" prefWidth="614.0" spacing="30.0">
+                                    <children>
+                                        <TextField fx:id="txtName" disable="true" promptText="Nombre" visible="true" />
+                                        <TextField fx:id="txtAddress" disable="true" promptText="Dirección" visible="true" />
+                                        <TextField fx:id="txtPhoneNumber" disable="true" promptText="Teléfono" visible="true" />
+                                    </children>
+                                </HBox>
                             </children>
                         </Pane>
                         <HBox alignment="BASELINE_LEFT" prefHeight="42.0" prefWidth="823.0" spacing="5.0">
                             <children>
                                 <Button mnemonicParsing="false" onAction="#insertClick" prefHeight="30.0" prefWidth="82.0" text="Insertar" />
                                 <Button fx:id="removeButton" mnemonicParsing="false" onAction="#removeClick" prefHeight="30.0" prefWidth="82.0" text="Eliminar" />
-                                <Button fx:id="editButton" mnemonicParsing="false" onAction="#editClick" prefHeight="30.0" prefWidth="78.0" text="Editar" />
-                        <Button fx:id="addNumberButton" mnemonicParsing="false" onAction="#addOtherPhoneNumber" prefHeight="30.0" prefWidth="153.0" text="Agregar otro número" visible="true" />
-                        <Pane prefHeight="22.0" prefWidth="480.0">
-                           <children>
-                              <Button fx:id="saveButton" disable="true" layoutX="362.0" layoutY="-15.0" mnemonicParsing="false" onAction="#saveClick" prefHeight="30.0" prefWidth="62.0" text="Guardar" visible="true" />
-                              <Button fx:id="addAddressButton" layoutY="-15.0" mnemonicParsing="false" onAction="#addOtherAddress" prefHeight="30.0" prefWidth="146.0" text="Agregar otra dirección" visible="true" />
-                           </children>
-                        </Pane>
+                                <Button fx:id="editButton" mnemonicParsing="false" onAction="#removeClick" prefHeight="30.0" prefWidth="78.0" text="Editar" />
+                                <Button fx:id="addNumberButton" mnemonicParsing="false" onAction="#addOtherPhoneNumber" prefHeight="30.0" prefWidth="153.0" text="Agregar otro número" visible="true" />
+                                <Pane prefHeight="22.0" prefWidth="480.0">
+                                    <children>
+                                        <Button fx:id="saveButton" disable="true" layoutX="362.0" layoutY="-15.0" mnemonicParsing="false" onAction="#saveClick" prefHeight="30.0" prefWidth="62.0" text="Guardar" visible="true" />
+                                        <Button fx:id="addAddressButton" layoutY="-15.0" mnemonicParsing="false" onAction="#addOtherAddress" prefHeight="30.0" prefWidth="146.0" text="Agregar otra dirección" visible="true" />
+                                    </children>
+                                </Pane>
                             </children>
                         </HBox>
                     </children>
