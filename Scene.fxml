@@ -48,7 +48,7 @@
                             <children>
                                 <Button mnemonicParsing="false" onAction="#insertClick" prefHeight="30.0" prefWidth="82.0" text="Insertar" />
                                 <Button fx:id="removeButton" mnemonicParsing="false" onAction="#removeClick" prefHeight="30.0" prefWidth="82.0" text="Eliminar" />
-                                <Button fx:id="editButton" mnemonicParsing="false" onAction="#removeClick" prefHeight="30.0" prefWidth="78.0" text="Editar" />
+                                <Button fx:id="editButton" mnemonicParsing="false" onAction="#editClick" prefHeight="30.0" prefWidth="78.0" text="Editar" />
                                 <Button fx:id="addNumberButton" mnemonicParsing="false" onAction="#addOtherPhoneNumber" prefHeight="30.0" prefWidth="153.0" text="Agregar otro número" visible="true" />
                                 <Pane prefHeight="22.0" prefWidth="480.0">
                                     <children>

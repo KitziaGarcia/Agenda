@@ -38,7 +38,7 @@
                                 </Text>
                                 <HBox alignment="CENTER" layoutX="175.0" layoutY="9.0" prefHeight="55.0" prefWidth="641.0" spacing="30.0">
                                     <children>
-                                        <TextField fx:id="txtName" disable="true" promptText="Nombre" visible="true" />
+                                        <TextField fx:id="txtName" disable="false" promptText="Nombre" visible="true" />
                                         <ListView fx:id="listViewAddresses" prefHeight="200.0" prefWidth="200.0" />
                                         <ListView fx:id="listViewPhones" prefHeight="200.0" prefWidth="200.0" />
                                     </children>
